@@ -248,7 +248,7 @@ export function FleetMap({
           <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
             <div>
               <span className="text-muted-foreground">Velocidade:</span>
-              <span className="font-mono ml-1">{selectedVehicle.currentSpeed} km/h</span>
+              <span className="font-mono ml-1">{Math.round(selectedVehicle.currentSpeed)} km/h</span>
             </div>
             <div>
               <span className="text-muted-foreground">Direção:</span>

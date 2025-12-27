@@ -57,7 +57,7 @@ export function VehicleMarker({ vehicle, isSelected, onClick }: VehicleMarkerPro
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Velocidade:</span>
-              <span className="font-mono font-medium">{vehicle.currentSpeed} km/h</span>
+              <span className="font-mono font-medium">{Math.round(vehicle.currentSpeed)} km/h</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Direção:</span>

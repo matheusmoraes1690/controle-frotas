@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Search, Truck, MapPin, Gauge, AlertTriangle, Signal, SignalZero } from "lucide-react";
+import { Search, Truck, Gauge, AlertTriangle, Signal, SignalZero, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type { Vehicle } from "@shared/schema";
@@ -59,10 +58,10 @@ export function VehicleList({ vehicles, selectedVehicleId, onSelectVehicle, isLo
 
   const getStatusColor = (status: Vehicle["status"]) => {
     switch (status) {
-      case "moving": return "bg-status-online";
-      case "stopped": return "bg-status-away";
-      case "idle": return "bg-status-away";
-      case "offline": return "bg-status-offline";
+      case "moving": return "bg-emerald-500";
+      case "stopped": return "bg-amber-500";
+      case "idle": return "bg-amber-500";
+      case "offline": return "bg-gray-400";
     }
   };
 
@@ -75,20 +74,29 @@ export function VehicleList({ vehicles, selectedVehicleId, onSelectVehicle, isLo
     }
   };
 
+  const getStatusBadgeStyle = (status: Vehicle["status"]) => {
+    switch (status) {
+      case "moving": return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
+      case "stopped": return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+      case "idle": return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+      case "offline": return "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400";
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full">
-        <div className="p-4 space-y-4">
-          <div className="h-10 bg-muted animate-pulse rounded-md" />
-          <div className="flex gap-2">
+      <div className="flex flex-col h-full bg-card">
+        <div className="p-5 space-y-5">
+          <div className="h-12 bg-muted animate-pulse rounded-xl" />
+          <div className="flex gap-2 overflow-x-auto pb-1">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-8 w-20 bg-muted animate-pulse rounded-full" />
+              <div key={i} className="h-10 w-24 bg-muted animate-pulse rounded-full flex-shrink-0" />
             ))}
           </div>
         </div>
-        <div className="flex-1 p-4 space-y-3">
+        <div className="flex-1 p-5 space-y-3">
           {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="h-20 bg-muted animate-pulse rounded-md" />
+            <div key={i} className="h-24 bg-muted animate-pulse rounded-2xl" />
           ))}
         </div>
       </div>
@@ -96,29 +104,31 @@ export function VehicleList({ vehicles, selectedVehicleId, onSelectVehicle, isLo
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 space-y-4 border-b border-sidebar-border">
+    <div className="flex flex-col h-full bg-card">
+      {/* Search */}
+      <div className="p-5 space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             placeholder="Buscar veículo..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-12 h-12 rounded-xl border-2 border-transparent bg-muted/50 focus:border-primary focus:bg-card transition-all text-base"
             data-testid="input-search-vehicle"
           />
         </div>
         
-        <div className="flex flex-wrap gap-2">
+        {/* Filter Pills - Airbnb style */}
+        <div className="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
           {filters.map(filter => (
             <button
               key={filter.key}
               onClick={() => setActiveFilter(filter.key)}
               className={cn(
-                "px-3 py-1.5 text-xs font-medium rounded-full transition-colors hover-elevate",
+                "flex-shrink-0 px-4 py-2.5 text-sm font-semibold rounded-full border-2 transition-all duration-200 whitespace-nowrap",
                 activeFilter === filter.key
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-transparent text-foreground border-border hover:border-foreground/50"
               )}
               data-testid={`filter-${filter.key}`}
             >
@@ -128,12 +138,16 @@ export function VehicleList({ vehicles, selectedVehicleId, onSelectVehicle, isLo
         </div>
       </div>
 
+      {/* Vehicle List */}
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-2">
+        <div className="px-5 pb-5 space-y-3">
           {filteredVehicles.length === 0 ? (
-            <div className="text-center py-8">
-              <Truck className="h-12 w-12 mx-auto text-muted-foreground/50 mb-2" />
-              <p className="text-sm text-muted-foreground">Nenhum veículo encontrado</p>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                <Truck className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <p className="text-base font-medium text-foreground mb-1">Nenhum veículo encontrado</p>
+              <p className="text-sm text-muted-foreground">Tente ajustar os filtros</p>
             </div>
           ) : (
             filteredVehicles.map(vehicle => (
@@ -141,53 +155,78 @@ export function VehicleList({ vehicles, selectedVehicleId, onSelectVehicle, isLo
                 key={vehicle.id}
                 onClick={() => onSelectVehicle(vehicle)}
                 className={cn(
-                  "w-full p-3 rounded-md text-left transition-colors hover-elevate active-elevate-2",
+                  "w-full p-4 rounded-2xl text-left transition-all duration-200 group",
                   selectedVehicleId === vehicle.id
-                    ? "bg-sidebar-accent"
-                    : "bg-card"
+                    ? "bg-primary/10 ring-2 ring-primary"
+                    : "bg-muted/30 hover:bg-muted/50 hover:shadow-md"
                 )}
                 data-testid={`vehicle-item-${vehicle.id}`}
               >
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 mt-1">
-                    <div className={cn("w-3 h-3 rounded-full", getStatusColor(vehicle.status))} />
+                <div className="flex items-center gap-4">
+                  {/* Status indicator */}
+                  <div className="relative flex-shrink-0">
+                    <div className={cn(
+                      "w-12 h-12 rounded-full flex items-center justify-center",
+                      vehicle.status === "moving" ? "bg-emerald-100 dark:bg-emerald-900/30" :
+                      vehicle.status === "offline" ? "bg-gray-100 dark:bg-gray-800" :
+                      "bg-amber-100 dark:bg-amber-900/30"
+                    )}>
+                      <Truck className={cn(
+                        "h-6 w-6",
+                        vehicle.status === "moving" ? "text-emerald-600 dark:text-emerald-400" :
+                        vehicle.status === "offline" ? "text-gray-500 dark:text-gray-400" :
+                        "text-amber-600 dark:text-amber-400"
+                      )} />
+                    </div>
+                    <div className={cn(
+                      "absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-card",
+                      getStatusColor(vehicle.status)
+                    )} />
                   </div>
                   
+                  {/* Vehicle info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium truncate">{vehicle.name}</span>
+                      <span className="font-bold text-base truncate">{vehicle.name}</span>
                       {vehicle.currentSpeed > vehicle.speedLimit && (
-                        <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0" />
+                        <AlertTriangle className="h-4 w-4 text-primary flex-shrink-0" />
                       )}
                     </div>
                     
-                    <div className="text-xs text-muted-foreground mb-2">{vehicle.licensePlate}</div>
+                    <p className="text-sm text-muted-foreground mb-2">{vehicle.licensePlate}</p>
                     
-                    <div className="flex items-center gap-4 text-xs">
-                      <div className="flex items-center gap-1">
-                        <Gauge className="h-3 w-3" />
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-1.5">
+                        <Gauge className="h-4 w-4 text-muted-foreground" />
                         <span className={cn(
-                          "font-mono font-medium",
-                          vehicle.currentSpeed > vehicle.speedLimit && "text-destructive"
+                          "text-sm font-semibold",
+                          vehicle.currentSpeed > vehicle.speedLimit ? "text-primary" : "text-foreground"
                         )}>
-                          {vehicle.currentSpeed} km/h
+                          {Math.round(vehicle.currentSpeed)} km/h
                         </span>
                       </div>
                       
-                      <div className="flex items-center gap-1 text-muted-foreground">
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
                         {vehicle.status === "offline" ? (
-                          <SignalZero className="h-3 w-3" />
+                          <SignalZero className="h-4 w-4" />
                         ) : (
-                          <Signal className="h-3 w-3" />
+                          <Signal className="h-4 w-4" />
                         )}
-                        <span>{formatTime(vehicle.lastUpdate)}</span>
+                        <span className="text-sm">{formatTime(vehicle.lastUpdate)}</span>
                       </div>
                     </div>
                   </div>
                   
-                  <Badge variant="secondary" className="text-[10px] flex-shrink-0">
-                    {getStatusLabel(vehicle.status)}
-                  </Badge>
+                  {/* Status badge and arrow */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className={cn(
+                      "px-3 py-1.5 text-xs font-semibold rounded-full",
+                      getStatusBadgeStyle(vehicle.status)
+                    )}>
+                      {getStatusLabel(vehicle.status)}
+                    </span>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </div>
                 </div>
               </button>
             ))
